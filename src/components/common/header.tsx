@@ -1,0 +1,53 @@
+import { houseImage, profileImage } from "../../assets/Images";
+import { Avatar, AvatarImage } from "../ui/Avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/Dropdown-Menu"; // Assuming these are your components
+import { Lock, LogOut } from "lucide-react"; 
+import Dropdown from "./headerDropdown"; 
+
+// Dropdown items defined as an object (array)
+const dropdownItems = [
+  {
+    label: "Forgot Password",
+    icon: <Lock className="h-4 w-4 mr-2 text-[#0B3379]" />,
+    onClick: () => console.log("Forgot Password clicked")
+  },
+  {
+    label: "Exit",
+    icon: <LogOut className="h-4 w-4 mr-2 text-[#0B3379]" />,
+    onClick: () => console.log("Exit clicked")
+  },
+];
+
+const Header = () => {
+  return (
+    <header className="bg-[#F7F7F7]">
+      <div className="flex justify-between p-6 items-center md:items-start">
+        <div className="flex items-center gap-4">
+          <img src={houseImage} alt="House" />
+          <h4 className="heading-title2 sm:text-[12px] text-[#0B3379] font-[ClashDisplay-Medium]">
+            Agent Mira
+          </h4>
+        </div>
+        <div>
+          <h1 className="text-[18px] md:text-[36px] text-[#0B3379] font-[ClashDisplay-Medium] md:mt-4">
+            Market Report - January 2025
+          </h1>
+        </div>
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className=" w-8 h-8  md:w-14 md:h-14 cursor-pointer">
+                <AvatarImage src={profileImage} alt="Profile" />
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 p-0 rouded-md" align="end">
+              <Dropdown items={dropdownItems} />
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
