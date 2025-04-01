@@ -1,37 +1,31 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import PriceMetricCard, {
   PriceDataProps,
 } from "../components/common/priceMetricCard";
 import { getHomeLists } from "../services/apiService";
 import { toast } from "react-toastify";
+import { LoaderContext } from "../services/LoaderContext";
+// import { useAppDispatch } from "../store/store";
+// import { setMonth } from "../store/reducer/common.reducer";
+import { useSelector } from "react-redux";
 
 const SnapShotPage = () => {
-  const [activeTab, setActiveTab] = useState(
-    () => sessionStorage.getItem("activeTab") || "summary"
-  );
   const [listings, setListings] = useState<PriceDataProps[]>([]);
-  const [savedFlList, setSavedFlList] = useState("All");
+  const context = useContext(LoaderContext);
+  const hasFetched = useRef(false);
+  // const dispatch = useAppDispatch()
+  const apiCall = useSelector((state:any)=>state.common.filter)
+  
+      if (!context) {
+        throw new Error('LoaderContext must be used within a LoaderProvider');
+    }
+  
+    const { showLoader, hideLoader } = context;
 
   const returnFilters = () => {
     const storedFilters = sessionStorage.getItem(btoa("filters"));
     return storedFilters ? JSON.parse(atob(storedFilters)) : {};
   };
-
-  const returnHeading = () => {
-    const strFl = sessionStorage.getItem(btoa("heading"));
-    return strFl ? JSON.parse(atob(strFl)) : "All";
-  };
-
-  useEffect(() => {
-    if (returnFilters() !== null) {
-      setSavedFlList(returnHeading());
-    }
-
-    const savedTab = localStorage.getItem("activeTab");
-    if (savedTab) {
-      setActiveTab(savedTab);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -43,25 +37,28 @@ const SnapShotPage = () => {
         if (apiResponse.code === 200) {
           // Handle response
           setListings(apiResponse?.response?.listing);
-          console.log(apiResponse);
-          // setShowMonth(apiResponse?.response?.month);
-          // hideLoader();
+          // dispatch(setMonth(apiResponse.response?.month as string))
+          hideLoader();
         }
       } catch (error: any) {
-        // hideLoader();
+        hideLoader();
         toast.warning("Failed to fetch data.", error);
       }
     };
-    fetchQuestions();
-  }, []);
-
-  if(listings.length === 0){
-    return(
-      <div>
-        Loading....
-      </div>
-    )
+    if (!hasFetched.current) {
+      showLoader();
+      fetchQuestions();
+      hasFetched.current = true;
   }
+  }, [hasFetched, hideLoader, showLoader, apiCall]);
+
+  // if(listings.length === 0){
+  //   return(
+  //     <div>
+  //       Loading....
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="flex flex-wrap gap-4">

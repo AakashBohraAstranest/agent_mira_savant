@@ -1,70 +1,62 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RotateCw } from "lucide-react";
 import HomeTypeDropdown from "./homeTypeDropDown"; // Fixed casing to match assumed file name
 import PriceRangeDropdown from "./priceRange";
 import BedsBathsDropdown from "./bedBathroomDropdown";
 import LivingAreaDropdown from "./livingAreaDropDown";
 import LotAreaDropdown from "./lotAreaDropDown";
-
-// Define types for state and handler parameters
-interface Range {
-  min: string | null; // Changed from number to string to match child components
-  max: string | null; // Changed from number to string to match child components
-}
-
-interface BedsBaths {
-  beds: string[];
-  baths: string[];
-}
+import { toast } from "react-toastify";
+import { dropdownFiltersList } from "../../services/apiService";
+import { PropertyFilters } from "../../types/types";
+import { useAppDispatch } from "../../store/store";
+import { resetFilters } from "../../store/reducer/common.reducer";
+import { useSelector } from "react-redux";
 
 const DropdownTabs = () => {
-  const [selectedHomeTypes, setSelectedHomeTypes] = useState<number[]>([]); // Changed from string[] to number[]
-  const [priceRange, setPriceRange] = useState<Range>({ min: null, max: null });
-  const [livingArea, setLivingArea] = useState<Range>({ min: null, max: null }); // Renamed to camelCase
-  const [lotArea, setLotArea] = useState<Range>({ min: null, max: null }); // Renamed to camelCase
-  const [bedsBaths, setBedsBaths] = useState<BedsBaths>({ beds: [], baths: [] });
-  const [resetTrigger, setResetTrigger] = useState(false);
+  const [filterLists, setFilterLists] = useState<PropertyFilters>();
+  const filter = useSelector((state:any)=>state.common.filter)
+  const dispatch = useAppDispatch()
 
-  const handleHomeTypeChange = (newSelectedHomeTypes: number[]) => { // Changed from string[] to number[]
-    setSelectedHomeTypes(newSelectedHomeTypes);
-  };
+  useEffect(() => {
+    const fetchMonthFilters = async () => {
+      try {
+        const apiResponse = await dropdownFiltersList();
+        if (apiResponse.code === 200) {
+          setFilterLists(apiResponse?.response);
+        }
+      } catch (error: any) {
+        toast.warning("Failed to fetch data.", error);
+      }
+    };
 
-  const handlePriceRangeChange = (newPriceRange: Range) => {
-    setPriceRange(newPriceRange);
-  };
+    fetchMonthFilters();
 
-  const handleLivingArea = (newLivingArea: Range) => {
-    setLivingArea(newLivingArea);
-  };
-
-  const handleLotArea = (newLotArea: Range) => {
-    setLotArea(newLotArea);
-  };
-
-  const handleBedsBathsChange = (newBedsBaths: BedsBaths) => {
-    setBedsBaths(newBedsBaths);
-  };
+    // if (activeTabInfo) {
+    //     setActiveTab(activeTabInfo);
+    // }
+  }, []);
 
   const handleReset = () => {
-    setResetTrigger(true);
-    setSelectedHomeTypes([]);
-    setPriceRange({ min: null, max: null });
-    setLivingArea({ min: null, max: null });
-    setLotArea({ min: null, max: null });
-    setBedsBaths({ beds: [], baths: [] });
-    setTimeout(() => setResetTrigger(false), 0);
+    dispatch(resetFilters())
   };
 
   const isAnythingSelected =
-    selectedHomeTypes.length > 0 ||
-    priceRange.min !== null ||
-    priceRange.max !== null ||
-    livingArea.min !== null ||
-    livingArea.max !== null ||
-    lotArea.min !== null ||
-    lotArea.max !== null ||
-    bedsBaths.beds.length > 0 ||
-    bedsBaths.baths.length > 0;
+    filter.homeType.single_family !== false ||
+    filter.homeType.condo !== false ||
+    filter.homeType.townhouse !== false ||    
+    filter.homeType.multi_family !== false ||    
+    filter.listingPrice.min !== "" ||
+    filter.listingPrice.max !== "" ||
+    filter.livingArea.min !== "" ||
+    filter.livingArea.max !== "" ||
+    filter.lotSize.min !== "" ||
+    filter.lotSize.max !== "" ||
+    filter.beds !== "Any" ||
+    filter.baths !== "Any";
+
+  if (filterLists === undefined) {
+    return null;
+  }
 
   return (
     <div className="flex w-full justify-center m-auto my-4 gap-4 items-center flex-wrap md:flex-nowrap">
@@ -73,24 +65,20 @@ const DropdownTabs = () => {
       </p>
       <div className="flex gap-4 flex-wrap md:flex-nowrap justify-center md:justify-unset">
         <HomeTypeDropdown
-          onSelectionChange={handleHomeTypeChange}
-          reset={resetTrigger}
+          data={filterLists.homeTypeList}
         />
         <PriceRangeDropdown
-          onSelectionChange={handlePriceRangeChange}
-          reset={resetTrigger}
+          RangeOptionData={filterLists.priceOptions}
         />
         <BedsBathsDropdown
-          onSelectionChange={handleBedsBathsChange}
-          reset={resetTrigger}
+          bathOptions={filterLists.bathroomOptions}
+          bedOptions={filterLists.bedroomOptions}
         />
         <LivingAreaDropdown
-          onSelectionChange={handleLivingArea}
-          reset={resetTrigger}
+          RangeOption={filterLists.livingAreaList}
         />
         <LotAreaDropdown
-          onSelectionChange={handleLotArea}
-          reset={resetTrigger}
+          RangeOption={filterLists.lotSizeList}
         />
       </div>
       {isAnythingSelected && (

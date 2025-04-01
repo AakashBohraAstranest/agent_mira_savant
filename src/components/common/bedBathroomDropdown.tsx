@@ -6,69 +6,63 @@ import {
 } from "../ui/Dropdown-Menu";
 import { ChevronDown, Bed } from "lucide-react";
 import CheckBox from "../ui/checkBox";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../store/store";
+import { setBaths, setBeds } from "../../store/reducer/common.reducer";
 
 // Define the props interface
 interface BedsBathsDropdownProps {
-  onSelectionChange: (selection: { beds: string[]; baths: string[] }) => void;
-  reset: boolean;
+  bedOptions: string[];
+  bathOptions: string[];
 }
 
-const BedsBathsDropdown = ({ onSelectionChange, reset }: BedsBathsDropdownProps) => {
-  const [selectedBeds, setSelectedBeds] = useState<string[]>([]);
-  const [selectedBaths, setSelectedBaths] = useState<string[]>([]);
+const BedsBathsDropdown = ({
+  bedOptions = [],
+  bathOptions = [],
+}: BedsBathsDropdownProps) => {
+  const [selectedBeds, setSelectedBeds] = useState<string>("");
+  const [selectedBaths, setSelectedBaths] = useState<string>("");
   const [triggerLabel, setTriggerLabel] = useState("Beds/Baths");
   const [useExact, setUseExact] = useState(false);
-
-  const bedOptions = ["1+", "2+", "3+", "4+", "5+"];
-  const bathOptions = ["1+", "2+", "3+", "4+", "5+"];
-
-  // Reset effect
-  useEffect(() => {
-    if (reset) {
-      setSelectedBeds([]);
-      setSelectedBaths([]);
-      setUseExact(false);
-      setTriggerLabel("Beds/Baths");
-      onSelectionChange({ beds: [], baths: [] });
-    }
-  }, [reset, onSelectionChange]);
+  const bedsBaths = useSelector((state: any)=> state.common.filter) 
+  const dispatch = useAppDispatch()
 
   const handleBedChange = (bed: string) => {
     if (useExact) {
-      setSelectedBeds((prev) => (prev.includes(bed) ? [] : [bed]));
-      setSelectedBaths((prev) => (prev.includes(bed) ? [] : [bed]));
+      dispatch(setBeds(bed))
+      dispatch(setBaths(bed))
     } else {
-      setSelectedBeds((prev) =>
-        prev.includes(bed) ? prev.filter((b) => b !== bed) : [...prev, bed]
-      );
+      dispatch(setBeds(bed))
     }
   };
 
   const handleBathChange = (bath: string) => {
     if (useExact) {
-      setSelectedBaths((prev) => (prev.includes(bath) ? [] : [bath]));
-      setSelectedBeds((prev) => (prev.includes(bath) ? [] : [bath]));
+      dispatch(setBeds(bath))
+      dispatch(setBaths(bath))
     } else {
-      setSelectedBaths((prev) =>
-        prev.includes(bath) ? prev.filter((b) => b !== bath) : [...prev, bath]
-      );
+      dispatch(setBaths(bath))
     }
   };
 
   const handleApply = () => {
-    const bedsLabel = selectedBeds.length > 0 ? `${selectedBeds.sort().join(", ")} Bed` : "Any Bed";
-    const bathsLabel = selectedBaths.length > 0 ? `${selectedBaths.sort().join(", ")} Bath` : "Any Bath";
+    const bedsLabel =
+    bedsBaths.beds !== 'Any'
+        ? `${bedsBaths.beds}+`
+        : "Any";
+    const bathsLabel =
+    bedsBaths.baths !== 'Any'
+        ? `${bedsBaths.baths}+`
+        : "Any";
     const newLabel = `${bedsLabel} / ${bathsLabel}`;
     setTriggerLabel(newLabel);
-    onSelectionChange({ beds: selectedBeds, baths: selectedBaths });
   };
 
   const handleAny = () => {
-    setSelectedBeds([]);
-    setSelectedBaths([]);
+    dispatch(setBeds("Any"))
+      dispatch(setBaths("Any"))
     setUseExact(false);
     setTriggerLabel("Beds/Baths");
-    onSelectionChange({ beds: [], baths: [] });
   };
 
   const isSelected = selectedBeds.length > 0 || selectedBaths.length > 0;
@@ -86,7 +80,7 @@ const BedsBathsDropdown = ({ onSelectionChange, reset }: BedsBathsDropdownProps)
         {triggerLabel}
         <ChevronDown className="h-4 w-4 ml-2" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64">
+      <DropdownMenuContent className="w-64 bg-white">
         <div className="p-2">
           {/* No. of Beds */}
           <div className="mb-2">
@@ -94,19 +88,23 @@ const BedsBathsDropdown = ({ onSelectionChange, reset }: BedsBathsDropdownProps)
               Number of Bedrooms
             </label>
             <div className="flex gap-2">
-              {bedOptions.map((bed) => (
-                <button
-                  key={bed}
-                  onClick={() => handleBedChange(bed)}
-                  className={`w-10 h-10 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
-                    selectedBeds.includes(bed)
-                      ? "bg-[#0B3379] text-[#fff]"
-                      : "bg-[#F7F7F7] text-[#0B3379] hover:bg-[#37D3AE]"
-                  }`}
-                >
-                  {bed}
-                </button>
-              ))}
+              {bedOptions.length === 0 ? (
+                <div>....Loading</div>
+              ) : (
+                bedOptions.map((bed) => (
+                  <button
+                    key={bed}
+                    onClick={() => handleBedChange(bed)}
+                    className={`w-10 h-10 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
+                      bedsBaths.beds ===bed
+                        ? "bg-[#0B3379] text-[#fff]"
+                        : "bg-[#F7F7F7] text-[#0B3379] hover:bg-[#37D3AE]"
+                    }`}
+                  >
+                    {bed === "Any" ? bed : `${bed}+`}
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
@@ -126,12 +124,12 @@ const BedsBathsDropdown = ({ onSelectionChange, reset }: BedsBathsDropdownProps)
                   setUseExact(!useExact);
                   if (!useExact) {
                     // If enabling "Use Exact", sync beds and baths to the first selected bed (if any)
-                    if (selectedBeds.length > 0) {
-                      setSelectedBaths([selectedBeds[0]]);
-                      setSelectedBeds([selectedBeds[0]]);
-                    } else if (selectedBaths.length > 0) {
-                      setSelectedBeds([selectedBaths[0]]);
-                      setSelectedBaths([selectedBaths[0]]);
+                    if (selectedBeds !== "") {
+                      setSelectedBaths(selectedBeds);
+                      setSelectedBeds(selectedBeds);
+                    } else if (selectedBaths !== "") {
+                      setSelectedBeds(selectedBaths);
+                      setSelectedBaths(selectedBaths);
                     }
                   }
                 }}
@@ -151,19 +149,23 @@ const BedsBathsDropdown = ({ onSelectionChange, reset }: BedsBathsDropdownProps)
               Number of Baths
             </label>
             <div className="flex gap-2">
-              {bathOptions.map((bath) => (
-                <button
-                  key={bath}
-                  onClick={() => handleBathChange(bath)}
-                  className={`w-10 h-10 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
-                    selectedBaths.includes(bath)
-                      ? "bg-[#0B3379] text-[#fff]"
-                      : "bg-[#F7F7F7] text-[#0B3379] hover:bg-[#37D3AE]"
-                  }`}
-                >
-                  {bath}
-                </button>
-              ))}
+              {bathOptions.length === 0 ? (
+                <div>....Loading</div>
+              ) : (
+                bathOptions.map((bath) => (
+                  <button
+                    key={bath}
+                    onClick={() => handleBathChange(bath)}
+                    className={`w-10 h-10 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
+                      bedsBaths.baths === bath
+                        ? "bg-[#0B3379] text-[#fff]"
+                        : "bg-[#F7F7F7] text-[#0B3379] hover:bg-[#37D3AE]"
+                    }`}
+                  >
+                    {bath === "Any" ? bath : `${bath}+`}
+                  </button>
+                ))
+              )}
             </div>
           </div>
 

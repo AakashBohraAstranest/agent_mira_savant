@@ -94,7 +94,7 @@ const apiRequest = async <T>(
 const handleSessionExpiration = (): void => {
   sessionStorage.clear();
   localStorage.clear();
-  window.location.href = "/auth/login"; // Redirect to login page
+  window.location.href = "/login"; // Redirect to login page
 };
 
 // ==================================== Global Service ==================

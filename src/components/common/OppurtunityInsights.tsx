@@ -1,4 +1,4 @@
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { ScrollArea, ScrollBar } from "../ui/Scroll-Area";
 import "../../custom.css";
 import { FC } from "react";
 

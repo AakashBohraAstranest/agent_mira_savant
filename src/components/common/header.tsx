@@ -1,24 +1,38 @@
 import { houseImage, profileImage } from "../../assets/Images";
 import { Avatar, AvatarImage } from "../ui/Avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/Dropdown-Menu"; // Assuming these are your components
-import { Lock, LogOut } from "lucide-react"; 
-import Dropdown from "./headerDropdown"; 
-
-// Dropdown items defined as an object (array)
-const dropdownItems = [
-  {
-    label: "Forgot Password",
-    icon: <Lock className="h-4 w-4 mr-2 text-[#0B3379]" />,
-    onClick: () => console.log("Forgot Password clicked")
-  },
-  {
-    label: "Exit",
-    icon: <LogOut className="h-4 w-4 mr-2 text-[#0B3379]" />,
-    onClick: () => console.log("Exit clicked")
-  },
-];
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "../ui/Dropdown-Menu"; // Assuming these are your components
+import { Lock, LogOut } from "lucide-react";
+import Dropdown from "./headerDropdown";
+import { userLogout } from "../../services/apiService";
+import { useNavigate } from "react-router";
 
 const Header = () => {
+
+  const navigate = useNavigate()
+
+  const logout = async () => {
+    await userLogout();
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate('/login')
+  };
+
+  const dropdownItems = [
+    {
+      label: "Forgot Password",
+      icon: <Lock className="h-4 w-4 mr-2 text-[#0B3379]" />,
+      onClick: () => {},
+    },
+    {
+      label: "Logout",
+      icon: <LogOut className="h-4 w-4 mr-2 text-[#0B3379]" />,
+      onClick: logout
+    },
+  ];
   return (
     <header className="bg-[#F7F7F7]">
       <div className="flex justify-between p-6 items-center md:items-start">
