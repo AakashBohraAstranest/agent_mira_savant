@@ -1,10 +1,14 @@
 import * as React from "react";
 import { cn } from "../../lib/utils";
-import { Search } from "lucide-react";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+function Input({
+  className,
+  type,
+  value,
+  ...props
+}: React.ComponentProps<"input">) {
   return (
-    <div className="relative flex items-center w-full">
+    
       <input
         type={type}
         data-slot="input"
@@ -14,13 +18,9 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
           "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
           className
         )}
+        value={value}
         {...props}
       />
-      <Search
-        size={18}
-        className="absolute right-3 text-[#0B3379] pointer-events-none"
-      />
-    </div>
   );
 }
 

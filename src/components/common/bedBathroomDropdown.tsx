@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/Dropdown-Menu";
 import { ChevronDown, Bed } from "lucide-react";
 import CheckBox from "../ui/checkBox";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../store/store";
-import { setApiCall, setBaths, setBeds, setExactMatch } from "../../store/reducer/common.reducer";
+import {
+  setApiCall,
+  setBaths,
+  setBeds,
+  setExactMatch,
+} from "../../store/reducer/common.reducer";
 
 // Define the props interface
 interface BedsBathsDropdownProps {
@@ -23,43 +29,42 @@ const BedsBathsDropdown = ({
   const [selectedBeds, setSelectedBeds] = useState<string>("");
   const [selectedBaths, setSelectedBaths] = useState<string>("");
   const [triggerLabel, setTriggerLabel] = useState("Beds/Baths");
-  const bedsBaths = useSelector((state: any)=> state.common.filter)
-  const dispatch = useAppDispatch()
+  const bedsBaths = useSelector((state: any) => state.common.filter);
+  const dispatch = useAppDispatch();
 
   const handleBedChange = (bed: string) => {
     if (bedsBaths.exactMatch) {
-      dispatch(setBeds(bed))
-      dispatch(setBaths(bed))
+      dispatch(setBeds(bed));
+      dispatch(setBaths(bed));
     } else {
-      dispatch(setBeds(bed))
+      dispatch(setBeds(bed));
     }
   };
 
   const handleBathChange = (bath: string) => {
     if (bedsBaths.exactMatch) {
-      dispatch(setBeds(bath))
-      dispatch(setBaths(bath))
-      dispatch(setExactMatch(true))
+      dispatch(setBeds(bath));
+      dispatch(setBaths(bath));
+      dispatch(setExactMatch(true));
     } else {
-      dispatch(setBaths(bath))
+      dispatch(setBaths(bath));
     }
   };
 
   const handleApply = () => {
-    const bedsLabel =
-    bedsBaths.beds !== 'Any'
-        ? `${bedsBaths.beds}+`
-        : "Any";
+    const bedsLabel = bedsBaths.beds !== "Any" ? `${bedsBaths.beds}+` : "Any";
     const bathsLabel =
-    bedsBaths.baths !== 'Any'
-        ? `${bedsBaths.baths}+`
-        : "Any";
+      bedsBaths.baths !== "Any" ? `${bedsBaths.baths}+` : "Any";
     const newLabel = `${bedsLabel} / ${bathsLabel}`;
     setTriggerLabel(newLabel);
-    dispatch(setApiCall(true))
+    dispatch(setApiCall(true));
   };
 
-  const isSelected = selectedBeds.length > 0 || selectedBaths.length > 0;
+  useEffect(()=>{
+    setTriggerLabel("Beds/Baths")
+  },[bedsBaths])
+
+  const isSelected = bedsBaths.baths !== "Any" || bedsBaths.beds !== "Any"
 
   return (
     <DropdownMenu>
@@ -90,7 +95,7 @@ const BedsBathsDropdown = ({
                     key={bed}
                     onClick={() => handleBedChange(bed)}
                     className={`w-12 h-12 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
-                      bedsBaths.beds ===bed
+                      bedsBaths.beds === bed
                         ? "bg-[#0B3379] text-[#fff]"
                         : "bg-[#F7F7F7] text-[#0B3379] hover:bg-[#37D3AE]"
                     }`}
@@ -156,12 +161,14 @@ const BedsBathsDropdown = ({
           </div>
 
           {/* Apply Button */}
-          <button
-            onClick={handleApply}
-            className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
-          >
-            Apply
-          </button>
+          <DropdownMenuItem>
+            <button
+              onClick={handleApply}
+              className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]/50"
+            >
+              Apply
+            </button>
+          </DropdownMenuItem>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

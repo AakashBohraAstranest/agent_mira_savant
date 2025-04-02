@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/Dropdown-Menu";
 import { ChevronDown, Home } from "lucide-react";
@@ -36,7 +37,7 @@ const HomeTypeDropdown = ({ data = [] }: HomeTypeDropdownProps) => {
 
   const handleApply = () => {
     const selectedKeys = Object.keys(homeType).filter((key) => homeType[key]); // Get selected keys
-  
+
     if (selectedKeys.length > 0) {
       const selectedLabels = data
         .filter((item) => selectedKeys.includes(item.value)) // Match selected values
@@ -46,9 +47,9 @@ const HomeTypeDropdown = ({ data = [] }: HomeTypeDropdownProps) => {
     } else {
       setHomeTypeLabel("HomeType");
     }
-  
+
     setSelectedHomeTypes(selectedKeys);
-    dispatch(setApiCall(true))
+    dispatch(setApiCall(true));
   };
 
   return (
@@ -57,9 +58,7 @@ const HomeTypeDropdown = ({ data = [] }: HomeTypeDropdownProps) => {
         <DropdownMenuTrigger
           className={`flex items-center gap-2 rounded-full px-2 py-2 text-[#0B3379] 
             ${
-              selectedHomeTypes.filter((item) =>
-                Object.keys(homeType).filter((key) => item === key)
-              ).length > 0
+              Object.keys(homeType).filter((key) => homeType[key]).length > 0
                 ? "bg-[#37D3AE]"
                 : "bg-[#B8D4FF]"
             } 
@@ -96,12 +95,14 @@ const HomeTypeDropdown = ({ data = [] }: HomeTypeDropdownProps) => {
                   </div>
                 ))
               : null}
-            <button
-              onClick={handleApply}
-              className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
-            >
-              Apply
-            </button>
+            <DropdownMenuItem>
+              <button
+                onClick={handleApply}
+                className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]/20"
+              >
+                Apply
+              </button>
+            </DropdownMenuItem>
           </div>
         </DropdownMenuContent>
       </DropdownMenu>

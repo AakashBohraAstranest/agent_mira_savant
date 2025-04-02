@@ -2,37 +2,48 @@ import { useState, useEffect, ChangeEvent } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/Dropdown-Menu";
 import { ChevronDown, CircleDollarSign } from "lucide-react";
 import { RangeOption } from "../../types/types";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../store/store";
-import { setApiCall, setListingPriceMax, setListingPriceMin } from "../../store/reducer/common.reducer";
+import {
+  setApiCall,
+  setListingPriceMax,
+  setListingPriceMin,
+} from "../../store/reducer/common.reducer";
 
 // Define the props interface
 interface PriceRangeDropdownProps {
-  RangeOptionData: RangeOption
+  RangeOptionData: RangeOption;
 }
 
-const PriceRangeDropdown = ({ RangeOptionData = {min: [], max:[]} }: PriceRangeDropdownProps) => {
+const PriceRangeDropdown = ({
+  RangeOptionData = { min: [], max: [] },
+}: PriceRangeDropdownProps) => {
   const [triggerLabel, setTriggerLabel] = useState<string>("Price Range");
-  const PriceRange = useSelector((state:any)=>state.common.filter.listingPrice);
+  const PriceRange = useSelector(
+    (state: any) => state.common.filter.listingPrice
+  );
   const dispatch = useAppDispatch();
 
   const handleMinChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newMin = e.target.value;
-    dispatch(setListingPriceMin(newMin))
+    dispatch(setListingPriceMin(newMin));
   };
 
   const handleMaxChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newMax = e.target.value;
-    dispatch(setListingPriceMax(newMax))
+    dispatch(setListingPriceMax(newMax));
   };
 
   const updateTriggerLabel = (min: string, max: string) => {
-    const minLabel = RangeOptionData.min.find((opt) => opt.value === min)?.label || "Min";
-    const maxLabel = RangeOptionData.max.find((opt) => opt.value === max)?.label || "Max";
+    const minLabel =
+      RangeOptionData.min.find((opt) => opt.value === min)?.label || "Min";
+    const maxLabel =
+      RangeOptionData.max.find((opt) => opt.value === max)?.label || "Max";
     if (min !== "" || max !== "") {
       setTriggerLabel(`${minLabel} - ${maxLabel}`);
     } else {
@@ -40,13 +51,13 @@ const PriceRangeDropdown = ({ RangeOptionData = {min: [], max:[]} }: PriceRangeD
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     updateTriggerLabel(PriceRange.min, PriceRange.max);
-  },[PriceRange])
+  }, [PriceRange]);
 
   const handleApply = () => {
-      dispatch(setApiCall(true))
-    };
+    dispatch(setApiCall(true));
+  };
 
   const isSelected = PriceRange.min !== "" || PriceRange.max !== "";
 
@@ -97,12 +108,14 @@ const PriceRangeDropdown = ({ RangeOptionData = {min: [], max:[]} }: PriceRangeD
               ))}
             </select>
           </div>
-          <button
+          <DropdownMenuItem>
+            <button
               onClick={handleApply}
-              className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
+              className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]/50"
             >
               Apply
             </button>
+          </DropdownMenuItem>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
