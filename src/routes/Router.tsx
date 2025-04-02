@@ -19,4 +19,6 @@ export const Router = createBrowserRouter([
     path: "/",
     element: <ProtectedRoute element={<Layout />}/>,
   },
-]);
+], {
+  basename: "/market-savant"
+});
