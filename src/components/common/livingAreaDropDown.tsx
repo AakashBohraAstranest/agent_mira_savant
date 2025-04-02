@@ -2,6 +2,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/Dropdown-Menu";
 import { ChevronDown, Box } from "lucide-react";
@@ -109,12 +110,14 @@ const LivingAreaDropdown = ({
                 : null}
             </select>
           </div>
-          <button
+          <DropdownMenuItem>
+            <button
               onClick={handleApply}
-              className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
+              className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]/50"
             >
               Apply
             </button>
+          </DropdownMenuItem>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
