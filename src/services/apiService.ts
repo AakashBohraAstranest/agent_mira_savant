@@ -28,7 +28,7 @@ const platform_url =
   import.meta.env.REACT_APP_PLATFORM_URL || "/market-dashboard";
 // Create Axios instance with default config
 const apiClient = axios.create({
-  baseURL: import.meta.env.REACT_APP_API_URL || "https://dev.astranest.ai",
+  baseURL:  import.meta.env.VITE_REACT_APP_API_URL || '',
   timeout: 120000, // 120 seconds timeout
 });
 

@@ -1,22 +1,22 @@
 import Speedometer from "../components/common/speedometer";
 import OpportunityInsights from "../components/common/OppurtunityInsights";
 import "../custom.css";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { getSummaryLists } from "../services/apiService";
-import { toast } from "react-toastify";
+import { useContext, useEffect, useRef, useState } from "react";
 import { MarketReportResponse } from "../types/types";
 import { LoaderContext } from "../services/LoaderContext";
-// import { useAppDispatch } from "../store/store";
-// import { setMonth } from "../store/reducer/common.reducer";
+import { useFetchSummary } from "../lib/ApiCall";
+import { useAppDispatch } from "../store/store";
 import { useSelector } from "react-redux";
+import { setApiCall } from "../store/reducer/common.reducer";
 
 const SummaryPage = () => {
   const [summaryResponse, setSummaryResponse] =
     useState<MarketReportResponse>();
   const hasFetched = useRef(false);
   const context = useContext(LoaderContext);
-  // const dispatch = useAppDispatch()
-  const apiCall = useSelector((state:any)=>state.common.filter)
+  const { fetchSummary } = useFetchSummary();
+  const dispatch = useAppDispatch();
+  const summary = useSelector((state:any)=>state.common.apiCall)
 
   if (!context) {
     throw new Error("LoaderContext must be used within a LoaderProvider");
@@ -24,33 +24,45 @@ const SummaryPage = () => {
 
   const { showLoader, hideLoader } = context;
 
-  // Stable function for fetching summary
-  const fetchSummary = useCallback(async () => {
-    const storedFilters = sessionStorage.getItem(btoa("filters"));
-    const decodedFilters = storedFilters ? JSON.parse(atob(storedFilters)) : {};
-
-    try {
-      showLoader();
-      const apiResponse = await getSummaryLists({ filters: decodedFilters });
-      if (apiResponse.code === 200) {
-        setSummaryResponse(apiResponse.response);
-        // dispatch(setMonth(apiResponse.response?.month as string))
-      }
-    } catch (error) {
-      toast.warning("Failed to fetch data.");
-    } finally {
-      hideLoader();
-    }
-  }, [showLoader, hideLoader]);
-
   useEffect(() => {
-    // Fetch data only when the component mounts or when the filters change (apiCall changes)
-    if (!hasFetched.current || apiCall !== hasFetched.current) {
-      showLoader();
-      fetchSummary();
-      hasFetched.current = apiCall; // Store the current filters
+    const fetchData = async () => {
+        if (!hasFetched.current) {
+            showLoader();
+            try {
+                const data = await fetchSummary(); // ✅ Wait for the Promise
+                setSummaryResponse(data as MarketReportResponse); // ✅ Correctly set state
+                dispatch(setApiCall(false))
+                hasFetched.current = true; // ✅ Only set after successful fetch
+            } catch (error) {
+                console.error("Error fetching summary:", error);
+            } finally {
+                hideLoader();
+            }
+        }
+    };
+
+    fetchData();
+}, []);
+
+useEffect(()=>{
+  const fetchData = async () => {
+    if (summary) {
+        showLoader();
+        try {
+            const data = await fetchSummary(); // ✅ Wait for the Promise
+            setSummaryResponse(data as MarketReportResponse); // ✅ Correctly set state
+            dispatch(setApiCall(false)) // ✅ Only set after successful fetch
+        } catch (error) {
+            console.error("Error fetching summary:", error);
+        } finally {
+            hideLoader();
+        }
     }
-  }, [fetchSummary, apiCall, showLoader, hideLoader]);
+};
+
+fetchData();
+},[summary])
+
 
   if(summaryResponse?.summary === undefined){
     return null

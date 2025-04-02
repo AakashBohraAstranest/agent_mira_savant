@@ -28,6 +28,8 @@ type FilterState = {
 
 type CommonState = {
     filter: FilterState;
+    month: string;
+    apiCall: boolean;
 };
 
 const defaultState: CommonState = {
@@ -55,7 +57,9 @@ const defaultState: CommonState = {
         month: "",
         cityZip: "",
         exactMatch: false
-    }
+    },
+    month: "",
+    apiCall: false
 };
 
 const saveToSessionStorage = (state: CommonState) => {
@@ -69,7 +73,11 @@ const saveToSessionStorage = (state: CommonState) => {
 const loadFromSessionStorage = (): CommonState => {
     const storedFilters = sessionStorage.getItem(btoa("filters"));
     return storedFilters
-        ? { filter: JSON.parse(atob(storedFilters)) }
+        ? {
+            filter: JSON.parse(atob(storedFilters)),
+            month: "",
+            apiCall: false
+        }
         : {
               filter: {
                   beds: "Any",
@@ -87,6 +95,8 @@ const loadFromSessionStorage = (): CommonState => {
                   cityZip: "",
                   exactMatch: false,
               },
+              month: "",
+              apiCall: false
           };
 };
 
@@ -161,6 +171,7 @@ export const commonSlice = createSlice({
         },
         setMonth: (state, action: PayloadAction<string>) => {
             state.filter.month = action.payload;
+            state.month = action.payload
             saveToSessionStorage(state);
         },
         setCityZip: (state, action: PayloadAction<string>) => {
@@ -174,6 +185,9 @@ export const commonSlice = createSlice({
         resetFilters: (state) => {
             state.filter = { ...defaultState.filter };
             sessionStorage.removeItem(btoa("filters"));
+        },
+        setApiCall:(state, action: PayloadAction<boolean>)=>{
+            state.apiCall = action.payload
         }
     }
 });
@@ -192,7 +206,8 @@ export const {
     setMonth,
     setCityZip,
     setExactMatch,
-    resetFilters
+    resetFilters,
+    setApiCall
 } = commonSlice.actions;
 
 // Export reducer

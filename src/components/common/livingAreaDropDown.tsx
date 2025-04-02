@@ -8,7 +8,11 @@ import { ChevronDown, Box } from "lucide-react";
 import { RangeOption } from "../../types/types";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../store/store";
-import { setLivingAreaMax, setLivingAreaMin } from "../../store/reducer/common.reducer";
+import {
+  setApiCall,
+  setLivingAreaMax,
+  setLivingAreaMin,
+} from "../../store/reducer/common.reducer";
 
 // Define the props interface
 interface LivingAreaDropdownProps {
@@ -19,7 +23,9 @@ const LivingAreaDropdown = ({
   RangeOption = { max: [], min: [] },
 }: LivingAreaDropdownProps) => {
   const [triggerLabel, setTriggerLabel] = useState<string>("Living Area");
-  const LivingArea = useSelector((state: any) => state.common.filter.livingArea);
+  const LivingArea = useSelector(
+    (state: any) => state.common.filter.livingArea
+  );
   const dispatch = useAppDispatch();
 
   const updateTriggerLabel = (min: string, max: string) => {
@@ -34,17 +40,21 @@ const LivingAreaDropdown = ({
     }
   };
 
-  const onChangeMin = (e: ChangeEvent<HTMLSelectElement>)=>{
-      dispatch(setLivingAreaMin(e.target.value))
-    }
-  
-    const onChangeMax = (e: ChangeEvent<HTMLSelectElement>)=>{
-      dispatch(setLivingAreaMax(e.target.value))
-    }
-  
-    useEffect(()=>{
-      updateTriggerLabel(LivingArea.min, LivingArea.max)
-    },[LivingArea])
+  const onChangeMin = (e: ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setLivingAreaMin(e.target.value));
+  };
+
+  const onChangeMax = (e: ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setLivingAreaMax(e.target.value));
+  };
+
+  useEffect(() => {
+    updateTriggerLabel(LivingArea.min, LivingArea.max);
+  }, [LivingArea]);
+
+  const handleApply = () => {
+    dispatch(setApiCall(true));
+  };
 
   const isSelected = LivingArea.min !== "" || LivingArea.max !== "";
 
@@ -99,6 +109,12 @@ const LivingAreaDropdown = ({
                 : null}
             </select>
           </div>
+          <button
+              onClick={handleApply}
+              className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
+            >
+              Apply
+            </button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

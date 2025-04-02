@@ -8,21 +8,29 @@ import { ChevronDown, Box } from "lucide-react";
 import { RangeOption } from "../../types/types";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../store/store";
-import { setLotSizeMax, setLotSizeMin } from "../../store/reducer/common.reducer";
+import {
+  setApiCall,
+  setLotSizeMax,
+  setLotSizeMin,
+} from "../../store/reducer/common.reducer";
 
 // Define the props interface
 interface LotAreaDropdownProps {
   RangeOption: RangeOption;
 }
 
-const LotAreaDropdown = ({ RangeOption= {max:[], min:[]} }: LotAreaDropdownProps) => {
+const LotAreaDropdown = ({
+  RangeOption = { max: [], min: [] },
+}: LotAreaDropdownProps) => {
   const [triggerLabel, setTriggerLabel] = useState<string>("Lot Size Area");
-  const lotArea = useSelector((state:any)=>state.common)
-  const dispatch = useAppDispatch()
+  const lotArea = useSelector((state: any) => state.common);
+  const dispatch = useAppDispatch();
 
   const updateTriggerLabel = (min: string, max: string) => {
-    const minLabel = RangeOption.min.find((opt) => opt.value === min)?.label || "Min";
-    const maxLabel = RangeOption.max.find((opt) => opt.value === max)?.label || "Max";
+    const minLabel =
+      RangeOption.min.find((opt) => opt.value === min)?.label || "Min";
+    const maxLabel =
+      RangeOption.max.find((opt) => opt.value === max)?.label || "Max";
     if (min !== "" || max !== "") {
       setTriggerLabel(`${minLabel} - ${maxLabel}`);
     } else {
@@ -30,19 +38,24 @@ const LotAreaDropdown = ({ RangeOption= {max:[], min:[]} }: LotAreaDropdownProps
     }
   };
 
-  const onChangeMin = (e: ChangeEvent<HTMLSelectElement>)=>{
-    dispatch(setLotSizeMin(e.target.value))
-  }
+  const onChangeMin = (e: ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setLotSizeMin(e.target.value));
+  };
 
-  const onChangeMax = (e: ChangeEvent<HTMLSelectElement>)=>{
-    dispatch(setLotSizeMax(e.target.value))
-  }
+  const onChangeMax = (e: ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setLotSizeMax(e.target.value));
+  };
 
-  useEffect(()=>{
-    updateTriggerLabel(lotArea.filter.lotSize.min, lotArea.filter.lotSize.max)
-  },[lotArea.filter.lotSize])
+  useEffect(() => {
+    updateTriggerLabel(lotArea.filter.lotSize.min, lotArea.filter.lotSize.max);
+  }, [lotArea.filter.lotSize]);
 
-  const isSelected = lotArea.filter.lotSize.min !== "" || lotArea.filter.lotSize.max !== "";
+  const handleApply = () => {
+    dispatch(setApiCall(true));
+  };
+
+  const isSelected =
+    lotArea.filter.lotSize.min !== "" || lotArea.filter.lotSize.max !== "";
 
   return (
     <DropdownMenu>
@@ -91,6 +104,12 @@ const LotAreaDropdown = ({ RangeOption= {max:[], min:[]} }: LotAreaDropdownProps
               ))}
             </select>
           </div>
+          <button
+            onClick={handleApply}
+            className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
+          >
+            Apply
+          </button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

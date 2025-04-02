@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { dropdownFiltersList } from "../../services/apiService";
 import { PropertyFilters } from "../../types/types";
 import { useAppDispatch } from "../../store/store";
-import { resetFilters } from "../../store/reducer/common.reducer";
+import { resetFilters, setApiCall } from "../../store/reducer/common.reducer";
 import { useSelector } from "react-redux";
 
 const DropdownTabs = () => {
@@ -38,6 +38,7 @@ const DropdownTabs = () => {
 
   const handleReset = () => {
     dispatch(resetFilters())
+    dispatch(setApiCall(true));
   };
 
   const isAnythingSelected =

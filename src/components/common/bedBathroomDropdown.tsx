@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +8,7 @@ import { ChevronDown, Bed } from "lucide-react";
 import CheckBox from "../ui/checkBox";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../store/store";
-import { setBaths, setBeds } from "../../store/reducer/common.reducer";
+import { setApiCall, setBaths, setBeds, setExactMatch } from "../../store/reducer/common.reducer";
 
 // Define the props interface
 interface BedsBathsDropdownProps {
@@ -23,12 +23,11 @@ const BedsBathsDropdown = ({
   const [selectedBeds, setSelectedBeds] = useState<string>("");
   const [selectedBaths, setSelectedBaths] = useState<string>("");
   const [triggerLabel, setTriggerLabel] = useState("Beds/Baths");
-  const [useExact, setUseExact] = useState(false);
-  const bedsBaths = useSelector((state: any)=> state.common.filter) 
+  const bedsBaths = useSelector((state: any)=> state.common.filter)
   const dispatch = useAppDispatch()
 
   const handleBedChange = (bed: string) => {
-    if (useExact) {
+    if (bedsBaths.exactMatch) {
       dispatch(setBeds(bed))
       dispatch(setBaths(bed))
     } else {
@@ -37,9 +36,10 @@ const BedsBathsDropdown = ({
   };
 
   const handleBathChange = (bath: string) => {
-    if (useExact) {
+    if (bedsBaths.exactMatch) {
       dispatch(setBeds(bath))
       dispatch(setBaths(bath))
+      dispatch(setExactMatch(true))
     } else {
       dispatch(setBaths(bath))
     }
@@ -56,13 +56,7 @@ const BedsBathsDropdown = ({
         : "Any";
     const newLabel = `${bedsLabel} / ${bathsLabel}`;
     setTriggerLabel(newLabel);
-  };
-
-  const handleAny = () => {
-    dispatch(setBeds("Any"))
-      dispatch(setBaths("Any"))
-    setUseExact(false);
-    setTriggerLabel("Beds/Baths");
+    dispatch(setApiCall(true))
   };
 
   const isSelected = selectedBeds.length > 0 || selectedBaths.length > 0;
@@ -80,7 +74,7 @@ const BedsBathsDropdown = ({
         {triggerLabel}
         <ChevronDown className="h-4 w-4 ml-2" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64 bg-white">
+      <DropdownMenuContent className="w-auto bg-white">
         <div className="p-2">
           {/* No. of Beds */}
           <div className="mb-2">
@@ -95,7 +89,7 @@ const BedsBathsDropdown = ({
                   <button
                     key={bed}
                     onClick={() => handleBedChange(bed)}
-                    className={`w-10 h-10 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
+                    className={`w-12 h-12 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
                       bedsBaths.beds ===bed
                         ? "bg-[#0B3379] text-[#fff]"
                         : "bg-[#F7F7F7] text-[#0B3379] hover:bg-[#37D3AE]"
@@ -107,22 +101,14 @@ const BedsBathsDropdown = ({
               )}
             </div>
           </div>
-
-          <button
-            onClick={handleAny}
-            className="w-full mb-2 px-4 py-2 text-[#0B3379] rounded hover:bg-[#0B3379] hover:text-[#fff] text-[20px] font-[ClashDisplay-Medium]"
-          >
-            Any
-          </button>
-
           <div className="mb-2">
             <div className="flex items-center gap-2 py-1">
               <CheckBox
                 id="exact-check"
-                checked={useExact}
+                checked={bedsBaths.exactMatch}
                 onCheckedChange={() => {
-                  setUseExact(!useExact);
-                  if (!useExact) {
+                  dispatch(setExactMatch(!bedsBaths.exactMatch));
+                  if (!bedsBaths.exactMatch) {
                     // If enabling "Use Exact", sync beds and baths to the first selected bed (if any)
                     if (selectedBeds !== "") {
                       setSelectedBaths(selectedBeds);
@@ -156,7 +142,7 @@ const BedsBathsDropdown = ({
                   <button
                     key={bath}
                     onClick={() => handleBathChange(bath)}
-                    className={`w-10 h-10 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
+                    className={`w-12 h-12 flex items-center justify-center text-[20px] font-[ClashDisplay-Medium] ${
                       bedsBaths.baths === bath
                         ? "bg-[#0B3379] text-[#fff]"
                         : "bg-[#F7F7F7] text-[#0B3379] hover:bg-[#37D3AE]"
@@ -169,17 +155,10 @@ const BedsBathsDropdown = ({
             </div>
           </div>
 
-          <button
-            onClick={handleAny}
-            className="w-full mb-2 px-4 py-2 text-[#0B3379] rounded hover:bg-[#0B3379] hover:text-[#fff] text-[20px] font-[ClashDisplay-Medium]"
-          >
-            Any
-          </button>
-
           {/* Apply Button */}
           <button
             onClick={handleApply}
-            className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] mt-4 font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
+            className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
           >
             Apply
           </button>

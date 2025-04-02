@@ -9,15 +9,21 @@ import { Lock, LogOut } from "lucide-react";
 import Dropdown from "./headerDropdown";
 import { userLogout } from "../../services/apiService";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../store/store";
+import { resetFilters } from "../../store/reducer/common.reducer";
 
 const Header = () => {
 
   const navigate = useNavigate()
+  const header = useSelector((state:any)=> state.common.month)
+  const dispatch = useAppDispatch()
 
   const logout = async () => {
     await userLogout();
     localStorage.clear();
     sessionStorage.clear();
+    dispatch(resetFilters())
     navigate('/login')
   };
 
@@ -44,7 +50,7 @@ const Header = () => {
         </div>
         <div>
           <h1 className="text-[18px] md:text-[36px] text-[#0B3379] font-[ClashDisplay-Medium] md:mt-4">
-            Market Report - January 2025
+            Market Report - {header}
           </h1>
         </div>
         <div>

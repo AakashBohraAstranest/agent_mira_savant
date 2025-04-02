@@ -8,7 +8,7 @@ import { ChevronDown, CircleDollarSign } from "lucide-react";
 import { RangeOption } from "../../types/types";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../store/store";
-import { setListingPriceMax, setListingPriceMin } from "../../store/reducer/common.reducer";
+import { setApiCall, setListingPriceMax, setListingPriceMin } from "../../store/reducer/common.reducer";
 
 // Define the props interface
 interface PriceRangeDropdownProps {
@@ -43,6 +43,10 @@ const PriceRangeDropdown = ({ RangeOptionData = {min: [], max:[]} }: PriceRangeD
   useEffect(()=>{
     updateTriggerLabel(PriceRange.min, PriceRange.max);
   },[PriceRange])
+
+  const handleApply = () => {
+      dispatch(setApiCall(true))
+    };
 
   const isSelected = PriceRange.min !== "" || PriceRange.max !== "";
 
@@ -93,6 +97,12 @@ const PriceRangeDropdown = ({ RangeOptionData = {min: [], max:[]} }: PriceRangeD
               ))}
             </select>
           </div>
+          <button
+              onClick={handleApply}
+              className="w-full mt-2 px-4 py-2 bg-[#37D3AE] text-[#0B3379] text-[20px] font-[ClashDisplay-Medium] rounded-full hover:bg-[#37D3AE]"
+            >
+              Apply
+            </button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
